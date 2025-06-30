@@ -42,19 +42,11 @@ def demo1():
         # Since we don't know the original image dimensions, we'll create a simple visualization
         n = len(cluster_labels)
         
-        # Try to infer if this could be from a square image
-        sqrt_n = int(np.sqrt(n))
-        if sqrt_n * sqrt_n == n:
-            # Reshape as square image
-            cluster_image = cluster_labels.reshape(sqrt_n, sqrt_n)
-            axes[i].imshow(cluster_image, cmap='tab10', vmin=0, vmax=k-1)
-            axes[i].set_title(f'k={k} (reshaped as {sqrt_n}x{sqrt_n})')
-        else:
-            # Display as 1D plot if we can't reshape nicely
-            axes[i].plot(cluster_labels, 'o-', markersize=2)
-            axes[i].set_title(f'k={k} (1D representation)')
-            axes[i].set_xlabel('Vertex index')
-            axes[i].set_ylabel('Cluster label')
+        # Display as 1D plot 
+        axes[i].plot(cluster_labels, 'o-', markersize=2)
+        axes[i].set_title(f'k={k} (1D representation)')
+        axes[i].set_xlabel('Vertex index')
+        axes[i].set_ylabel('Cluster label')
         
         axes[i].grid(True, alpha=0.3)
     
