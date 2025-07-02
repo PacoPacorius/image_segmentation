@@ -47,7 +47,7 @@ def demo3c():
     
     # Set thresholds
     T1 = 5   # Minimum number of pixels in a cluster
-    T2 = 0.20  # Threshold for n_cut value
+    T2 = 0.80  # Threshold for n_cut value
     
     # Create figure for results
     fig, axes = plt.subplots(2, 2, figsize=(12, 10))

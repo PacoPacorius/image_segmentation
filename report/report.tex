@@ -5,7 +5,7 @@
 \usepackage{lipsum} 
 \usepackage[margin=1in]{geometry}
 \usepackage{graphicx} 
-\usepackage{caption} 
+\usepackage[figurename=Εικόνα]{caption} 
 \usepackage{subcaption}
 \usepackage{hyperref} 
 \usepackage{listing}
@@ -19,6 +19,7 @@
     } 
 }
 
+\renewcommand{\figureautorefname}{Εικόνα}
 \setmainfont{Nimbus Roman}
 
 \title{Ψηφιακή Επεξεργασία Εικόνας \\ Image Segmentation}
@@ -82,22 +83,47 @@ clustering όπως απαιτεί η εκφώνηση της εργασίας. 
 Έπειτα καλείται η συνάρτηση spectral\_clustering() με είσοδο d1a για τιμές $k = 2,3,4$.
 Τέλος γίνεται μονοδιάστατη οπτικοποίηση των αποτελεσμάτων στην οποία φαίνεται 
 σε ποιό cluster ανήκει κάθε vertex. 
+Βλέπουμε στην~\autoref{figure1} ότι οι 11 κόμβοι του γράφου που μας δόθηκε
+χωρίζονται σε 2, 3 και 4 clusters, ανάλογα με την τιμή του $k$.
 
-\emph{ΒΑΛΕ ΑΠΟΤΕΛΕΣΜΑΤΑ ΕΔΩ}
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{Figure_1.png}
+    \caption{Αποτελέσματα spectral clustering σε έτοιμο affinity matrix}\label{figure1}
+\end{figure}
+
+
 \subsection{demo2}
 Στο demo 2 γίνεται η επίδειξη και της συνάρτησης img\_to\_graph() μαζί με τη 
 spectral\_clustering(). Οι εικόνες d2a και d2b φορτώνονται από το αρχείο 
 dip\_hw\_3.mat. Γίνονται έλεγχοι αν οι εικόνες εισόδου πληρούν τις προϋποθέσεις 
-της img\_to\_graph(), δηλαδή να είναι έγχρωμες και οι τιμές του να κυμαίνονται 
+της img\_to\_graph(), δηλαδή να είναι έγχρωμες και οι τιμές τους να κυμαίνονται 
 στο διάστημα $[0,1]$. Για κάθε μία από τις δύο εικόνες υπολογίζεται πρώτα το
 affinity matrix με τη χρήση της img\_to\_graph() και αυτό γίνεται η είσοδος
 της spectral\_clustering(). Για κάθε μία από τις δύο εικόνες η συνάρτηση 
 spectral\_clustering() τρέχει για τιμές $k = 2,3,4$, συνολικά 6 φορές. Οι
 ετικέτες του clustering τοποθετούνται στις θέσεις των pixels τα οποία περιγράφουν
 και εμφανίζονται στην οθόνη δίπλα στις αρχικές εικόνες τα αποτελέσματα για όλες 
-τις τιμές του $k$. Διαφορετικά clusters έχουν διαφορετικά χρώματα.
+τις τιμές του $k$. Διαφορετικά clusters έχουν διαφορετικά χρώματα. Βλέπουμε 
+στην~\autoref{figure2} ότι στην πρώτη εικόνα που μας δόθηκε χωρίζονται σωστά 
+οι στήλες χρώματος για $k=2,3$. Για $k=4$ όμως βλέπουμε δύο μικρά κουτάκια 
+μέσα στην κόκκινη στήλη, υπάρχει ένα τέταρτο cluster σε μια περιοχή που
+στην αρχική εικόνα είναι ομογενής και δεν έχει λόγο να μην ανήκει στο 
+ίδιο cluster. Στη κάτω εικόνα βλέπουμε ότι για $k=2$ στο ένα cluster ανήκουν
+τα πολύ άσπρα pixels (οι γωνίες της εικόνας και σημεία από τα γάντια του Mario)
+και όλα τα υπόλοιπα pixels στο άλλο cluster. Για $k=3$, στο νέο cluster 
+ομαδοποιούνται pixel με κόκκινο ή καφετί χρώμα (τα ρούχα του Mario κάτω από
+τη σαλοπέτα, τα παπούτσια του, το καπέλο του, οι φαβορίτες του). Για $k=4$ 
+όμως πάλι δεν λαμβάνουμε καμιά νέα πληροφορία για την εικόνα, στο νέο 
+cluster ανήκουν pixel από το καπέλο του Mario που στην αρχική εικόνα
+δεν ξεχωρίζουν με κάποιον τρόπο.
 
-\emph{ΒΑΛΕ ΑΠΟΤΕΛΕΣΜΑΤΑ ΕΔΩ}
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{Figure_2.png}
+    \caption{Αποτελέσματα spectral clustering σε εικόνες}\label{figure2}
+\end{figure}
+
 \section{Συνάρτηση n\_cuts()}
 Η συνάρτηση n\_cuts() βρίσκεται στο αρχείο n\_cuts.py. Η είσοδος της συνάρτησης 
 είναι ένα affinity matrix και ο αριθμός των clusters που θα δημιουργηθούν $k$.
@@ -159,8 +185,50 @@ matrix, μπορεί να είναι μικρότερος από την αρχι
     n\_cut = 2 - \left(\frac{assoc(A,A)}{assoc(A,V)} + \frac{assoc(B,B)}{assoc(B,V)}\right)
 \end{equation}
 η οποία είναι και η έξοδος της συνάρτησης.
+
 \section{Εφαρμογές}
 \subsection{demo3a} 
+Στο αρχείο demo3a.py γίνεται η επίδειξη της συνάρτησης n\_cuts(). Οι
+δοσμένες εικόνες d2a και d2b φορτώνονται από το αρχείο 
+dip\_hw\_3.mat. Γίνονται έλεγχοι αν οι εικόνες εισόδου πληρούν τις προϋποθέσεις 
+της img\_to\_graph(), δηλαδή να είναι έγχρωμες και οι τιμές τους να κυμαίνονται 
+στο διάστημα $[0,1]$. Για κάθε μία από τις δύο εικόνες υπολογίζεται πρώτα το
+affinity matrix με τη χρήση της img\_to\_graph(). Για κάθε affinity matrix και 
+για τις τιμές $k=2,3,4$ καλείται η συνάρτηση n\_cuts() (συνολικά 6 φορές).
+Οι ετικέτες του clustering τοποθετούνται στις θέσεις των pixels τα οποία περιγράφουν
+και εμφανίζονται στην οθόνη δίπλα στις αρχικές εικόνες τα αποτελέσματα για όλες 
+τις τιμές του $k$ (\autoref{figure3}). Βλέπουμε στην πάνω εικόνα με τις στήλες χρώματος
+τα ίδια αποτελέσματα με τη μέθοδο spectral clustering για τιμές $k=2,3$, τα όρια 
+των clusters είναι τα όρια των στηλών χρώματος. Για $k=4$ σε σχέση με τη μέθοδο 
+spectral\_clustering() έχουμε περισσότερα
+pixels που ανήκουν στο τέταρτο cluster, το οποίο δν προσφέρει καμία πληροφορία.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{Figure_3.png}
+    \caption{Αποτελέσματα μεθόδου normalized cuts (non-recursive) σε εικόνες}\label{figure3}
+\end{figure}
 \subsection{demo3b}
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{Figure_4.png}
+    \caption{Αποτελέσματα spectral clustering σε έτοιμο affinity matrix}\label{figure4}
+\end{figure}
 \subsection{demo3c}
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{Figure_5.png}
+    \caption{Αποτελέσματα spectral clustering σε έτοιμο affinity matrix}\label{figure5}
+\end{figure}
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{Figure_6.png}
+    \caption{Αποτελέσματα spectral clustering σε έτοιμο affinity matrix}\label{figure6}
+\end{figure}
 \end{document}
