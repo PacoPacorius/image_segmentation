@@ -2,12 +2,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.io import loadmat
 from img_to_graph import img_to_graph
-from n_cuts import n_cuts_recursive
+from n_cuts import n_cuts_recursive, n_cuts, calculate_n_cut_value
 
 def demo3c():
     """
     Demo 3c: Complete recursive normalized cuts on images d2a and d2b.
-    Uses T1=5 and T2=0.20 as thresholds.
+    First manually splits image into 2 clusters using n_cuts(), then applies
+    n_cuts_recursive() to each resulting cluster. Uses T1=5 and T2=0.20 as thresholds.
     """
     
     # Load the images from .mat file
@@ -70,21 +71,57 @@ def demo3c():
         affinity_mat = img_to_graph(img)
         print(f"Affinity matrix shape: {affinity_mat.shape}")
         
-        # Perform complete recursive normalized cuts
-        print("Performing recursive normalized cuts...")
-        cluster_labels = n_cuts_recursive(affinity_mat, T1, T2)
+        # Step 1: Manually split the image into 2 clusters using n_cuts()
+        print("Step 1: Manual binary split using n_cuts()...")
+        initial_clusters = n_cuts(affinity_mat, k=2)
+        print('ncut_value: ', calculate_n_cut_value(affinity_mat, initial_clusters))
         
-        # Get unique clusters and their counts
-        unique_clusters = np.unique(cluster_labels)
-        cluster_counts = np.bincount(cluster_labels.astype(int))
+        # Get indices for each initial cluster
+        unique_initial = np.unique(initial_clusters)
+        cluster_A_indices = np.where(initial_clusters == unique_initial[0])[0]
+        cluster_B_indices = np.where(initial_clusters == unique_initial[1])[0]
         
-        print(f"Number of final clusters: {len(unique_clusters)}")
+        print(f"Initial split - Cluster A: {len(cluster_A_indices)} pixels, Cluster B: {len(cluster_B_indices)} pixels")
+        
+        # Initialize final result array
+        final_cluster_labels = np.zeros(len(initial_clusters), dtype=np.float64)
+        max_label = 0
+        
+        # Step 2: Apply n_cuts_recursive() to each resulting cluster
+        print("Step 2: Applying recursive n_cuts to each cluster...")
+        
+        # Process Cluster A
+        if len(cluster_A_indices) > 0:
+            print(f"  Processing Cluster A ({len(cluster_A_indices)} pixels)...")
+            subgraph_A = affinity_mat[np.ix_(cluster_A_indices, cluster_A_indices)]
+            sub_result_A = n_cuts_recursive(subgraph_A, T1, T2)
+            # Adjust labels to be unique globally
+            sub_result_A = sub_result_A + max_label
+            final_cluster_labels[cluster_A_indices] = sub_result_A
+            max_label = int(np.max(sub_result_A)) + 1
+            print(f"    Cluster A resulted in {len(np.unique(sub_result_A))} sub-clusters")
+        
+        # Process Cluster B
+        if len(cluster_B_indices) > 0:
+            print(f"  Processing Cluster B ({len(cluster_B_indices)} pixels)...")
+            subgraph_B = affinity_mat[np.ix_(cluster_B_indices, cluster_B_indices)]
+            sub_result_B = n_cuts_recursive(subgraph_B, T1, T2)
+            # Adjust labels to be unique globally
+            sub_result_B = sub_result_B + max_label
+            final_cluster_labels[cluster_B_indices] = sub_result_B
+            print(f"    Cluster B resulted in {len(np.unique(sub_result_B))} sub-clusters")
+        
+        # Get final statistics
+        unique_clusters = np.unique(final_cluster_labels)
+        cluster_counts = np.bincount(final_cluster_labels.astype(int))
+        
+        print(f"Final result: {len(unique_clusters)} total clusters")
         print(f"Cluster distribution: {cluster_counts[cluster_counts > 0]}")
-        print(f"Cluster labels range: {cluster_labels.min():.0f} to {cluster_labels.max():.0f}")
+        print(f"Cluster labels range: {final_cluster_labels.min():.0f} to {final_cluster_labels.max():.0f}")
         
         # Reshape cluster labels back to image dimensions
         M, N = img.shape[:2]
-        cluster_image = cluster_labels.reshape(M, N)
+        cluster_image = final_cluster_labels.reshape(M, N)
         
         # Display clustering result
         num_clusters = len(unique_clusters)
@@ -98,10 +135,10 @@ def demo3c():
         # Print some statistics about the clustering
         print(f"Cluster sizes: {sorted(cluster_counts[cluster_counts > 0], reverse=True)}")
         
-        # Check if any clusters are smaller than T1 (should not happen unless they weren't split due to T2)
+        # Check if any clusters are smaller than T1
         small_clusters = np.sum(cluster_counts < T1) - np.sum(cluster_counts == 0)
         if small_clusters > 0:
-            print(f"Warning: {small_clusters} clusters have fewer than T1={T1} pixels")
+            print(f"Note: {small_clusters} clusters have fewer than T1={T1} pixels (stopped due to T2 threshold)")
     
     plt.tight_layout()
     plt.show()

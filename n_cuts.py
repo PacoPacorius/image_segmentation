@@ -45,45 +45,82 @@ def n_cuts(affinity_mat, k):
     
     return cluster_idx.astype(np.float64)
 
+#def calculate_n_cut_value(affinity_mat, cluster_idx):
+    #"""
+    #Calculate the n_cut value for two clusters.
+    #
+    #Parameters:
+    #affinity_mat: numpy array with shape [n, n], affinity/weight matrix
+    #cluster_idx: numpy array with shape [n,], cluster labels (should have exactly 2 unique values)
+    #
+    #Returns:
+    #n_cut: float, the normalized cut value
+    #"""
+    #W = affinity_mat
+    #unique_clusters = np.unique(cluster_idx)
+    #
+    #if len(unique_clusters) != 2:
+        #raise ValueError("calculate_n_cut_value expects exactly 2 clusters")
+    #
+    ## Get indices for clusters A and B
+    #cluster_A_indices = np.where(cluster_idx == unique_clusters[0])[0]
+    #cluster_B_indices = np.where(cluster_idx == unique_clusters[1])[0]
+    #
+    ## Calculate assoc(A,A) - sum of weights within cluster A
+    #assoc_A_A = np.sum(W[np.ix_(cluster_A_indices, cluster_A_indices)])
+    #
+    ## Calculate assoc(B,B) - sum of weights within cluster B
+    #assoc_B_B = np.sum(W[np.ix_(cluster_B_indices, cluster_B_indices)])
+    #
+    ## Calculate assoc(A,V) - sum of all weights from cluster A to all vertices
+    #assoc_A_V = np.sum(W[cluster_A_indices, :])
+    #
+    ## Calculate assoc(B,V) - sum of all weights from cluster B to all vertices
+    #assoc_B_V = np.sum(W[cluster_B_indices, :])
+    #
+    ## Calculate Nassoc(A,B)
+    #Nassoc_A_B = (assoc_A_A / (assoc_A_V + 1e-10)) + (assoc_B_B / (assoc_B_V + 1e-10))
+    #
+    ## Calculate Ncut(A,B)
+    #n_cut = 2.0 - Nassoc_A_B
+    #
+    #return n_cut
+
 def calculate_n_cut_value(affinity_mat, cluster_idx):
     """
     Calculate the n_cut value for two clusters.
-    
+
     Parameters:
     affinity_mat: numpy array with shape [n, n], affinity/weight matrix
     cluster_idx: numpy array with shape [n,], cluster labels (should have exactly 2 unique values)
-    
+
     Returns:
     n_cut: float, the normalized cut value
     """
     W = affinity_mat
     unique_clusters = np.unique(cluster_idx)
-    
+
     if len(unique_clusters) != 2:
         raise ValueError("calculate_n_cut_value expects exactly 2 clusters")
-    
+
     # Get indices for clusters A and B
     cluster_A_indices = np.where(cluster_idx == unique_clusters[0])[0]
     cluster_B_indices = np.where(cluster_idx == unique_clusters[1])[0]
-    
-    # Calculate assoc(A,A) - sum of weights within cluster A
+
+    # Calculate assoc(A,B) - sum of weights between cluster A and B
     assoc_A_A = np.sum(W[np.ix_(cluster_A_indices, cluster_A_indices)])
-    
-    # Calculate assoc(B,B) - sum of weights within cluster B
+
     assoc_B_B = np.sum(W[np.ix_(cluster_B_indices, cluster_B_indices)])
-    
+
     # Calculate assoc(A,V) - sum of all weights from cluster A to all vertices
     assoc_A_V = np.sum(W[cluster_A_indices, :])
-    
+
     # Calculate assoc(B,V) - sum of all weights from cluster B to all vertices
     assoc_B_V = np.sum(W[cluster_B_indices, :])
-    
-    # Calculate Nassoc(A,B)
-    Nassoc_A_B = (assoc_A_A / (assoc_A_V + 1e-10)) + (assoc_B_B / (assoc_B_V + 1e-10))
-    
-    # Calculate Ncut(A,B)
-    n_cut = 2.0 - Nassoc_A_B
-    
+
+    # Calculate Nassoc(A,B) using the standard formula
+    n_cut = 2 - ((assoc_A_A / (assoc_A_V)) + (assoc_B_B / (assoc_B_V)))
+
     return n_cut
 
 def n_cuts_recursive(affinity_mat, T1, T2):
@@ -105,6 +142,7 @@ def n_cuts_recursive(affinity_mat, T1, T2):
 
         # Compute the n_cut value for the partition
         n_cut = calculate_n_cut_value(sub_aff, sub_labels)
+        print(f'n_cut value: {n_cut}')
 
         # If the cut is not good enough, stop splitting and assign label
         if n_cut > T2:

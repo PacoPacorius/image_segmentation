@@ -138,7 +138,27 @@ affinity matrix για τον οποίο όλοι οι κόμβοι ανήκου
 συνάρτησης είναι το τελικό cluster\_idx.
 
 \section{Συνάρτηση calculate\_ncut\_value()}
+Η συνάρτηση αυτή βρίσκεται στο αρχείο n\_cuts.py. Οι είσοδοί της είναι ένα 
+affinity matrix που περιγράφει ένα γράφο / εικόνα και το cluster\_idx array 
+που δηλώνει ποιά pixel της εικόνας ανήκουν σε ποιό cluster. Αναγκαστικά το
+cluster\_idx μπορεί να δείχνει μόνο δύο clusters, και για να σιγουρευτεί η
+αλήθεια αυτής της προϋπόθεσης γίνεται έλεγχος. Υπολογίζονται οι 
+μετρικές assoc(A,A), assoc(A,V), assoc(B,B) και assoc(B,V), όπου A,B τα δύο
+clusters και V ολοόκληρος ο γράφος (ο οποίος περιγράφεται από το affinity
+matrix, μπορεί να είναι μικρότερος από την αρχική εικόνα). Η μετρική assoc()
+υπολογίζεται ως εξής:
 
+\begin{equation}
+    assoc(A,V) = \sum_{i, j} W(i, j)
+\end{equation}
+όπου $i$ τα indices των κόμβων του affinity πίνακα που ανήκουν στο cluster A
+και $j$ τα indices όλων των κόμβων του affinity matrix. Έπειτα υπολογίζεται η 
+τιμή n\_cut:
+
+\begin{equation}
+    n\_cut = 2 - \left(\frac{assoc(A,A)}{assoc(A,V)} + \frac{assoc(B,B)}{assoc(B,V)}\right)
+\end{equation}
+η οποία είναι και η έξοδος της συνάρτησης.
 \section{Εφαρμογές}
 \subsection{demo3a} 
 \subsection{demo3b}
