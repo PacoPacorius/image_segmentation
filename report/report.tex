@@ -136,9 +136,9 @@ spectral\_clustering(), λύνεται η γενικευμένη εξίσωση 
     D^{-1} Lx = \lambda x
 \end{gather}
 και βρίσκονται ιδιοτιμές και τα αντίστοιχα ιδιοδιανύσματα. Η συνάρτηση 
-scipy.sparse.linalg.eigs() καλείται με ορίσματα k=$k$ και 
+scipy.sparse.linalg.eigs() καλείται με ορίσμα\-τα k=$k$ και 
 which='SM', έτσι ώστε η συνάρτηση να επιστρέψει τις $k$ μικρότερες σε μέτρο
-ιδιοτιμές. Τέλος δημιουργείται ο πίνακας $U$
+ιδιοτιμές. Τέλος δημιουργεί\-ται ο πίνακας $U$
 που έχει στήλες τα ιδιοδιανύσματα του Λαπλασιανού πίνακα $L$ και ομαδοποιούνται
 οι γραμμές του $U$ με τη μέθοδο k-means. Έξοδος της συνάρτησης είναι το array 
 cluster\_idx που περιέχει τις ετικέτες που δηλώνουν σε ποιό cluster ανήκει κάθε
@@ -202,33 +202,75 @@ affinity matrix με τη χρήση της img\_to\_graph(). Για κάθε af
 των clusters είναι τα όρια των στηλών χρώματος. Για $k=4$ σε σχέση με τη μέθοδο 
 spectral\_clustering() έχουμε περισσότερα
 pixels που ανήκουν στο τέταρτο cluster, το οποίο δν προσφέρει καμία πληροφορία.
+Στην κάτω εικόνα βλέπουμε ήδη για $k=2$ ότι η σιλουέτα του Mario διαγράφεται 
+καλύτερα σε σχέση με τη μέθοδο spectral clustering. Στο ένα cluster ανήκουν 
+όλα τα pixel που δεν είναι γενικά μπλε και στο
+άλλο ανήκουν το background, το παντελόνι και τα μπλε μάτια του Mario. Για $k=3$,
+τα clusters χωρίζονται σε κόκκινο-καφέ, άσπρο-χρώμα δέρματος και μπλε. Ακόμα και
+αν δεν είχαμε την αρχική εικόνα, θα μπορούσαμε από αυτήν την εικόνα να αναγνωρίσουμε
+ότι απεικονίζεται ο Mario. Για $k=4$ η μέθοδος normalized cuts κατάφερε να διαχωρίσει
+το σκούρο μπλε του παντελονιού του Mario και το φωτεινό μπλε background σε 
+διαφορετικά clusters. Από την άλλη έχουμε υπερβολική λεπτομέρεια στα σημεία όπου 
+τα κόκκινα borders γίνονται μπλε background η οποία δεν είναι ιδιαίτερα βοηθητική.
 
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{Figure_3.png}
     \caption{Αποτελέσματα μεθόδου normalized cuts (non-recursive) σε εικόνες}\label{figure3}
 \end{figure}
-\subsection{demo3b}
 
+\subsection{demo3b}
+Στο αρχείο demo3b.py γίνεται η επίδειξη της μεθόδου recursive normalized cuts. Όμοια
+με το demo3a.py φορτώνονται οι δοσμένες εικόνες d2a, d2b και υπολογίζονται τα affinity 
+matrices τους με την img\_to\_graph(). Έπειτα εκτελείται το πρώτο βήμα της recursive
+n-cuts μεθόδου. Καλείται η συνάρτηση n\_cuts() με ορίσμα\-τα τους πίνακες affinity 
+των εικόνων και $k=2$. Υπολογίζεται η τιμή n\_cut καλώντας την συνάρτηση 
+calculate\_n\_cut\_value(). Τα ορίσμα\-τά της είναι ο πίνακας affinity και το
+array cluster\_idx έξοδος της n\_cuts(). Έπειτα προβάλλεται στην οθόνη η 
+αρχική εικόνα, η εικόνα με τα δύο διαφορετικά clusters και η τιμή n\_cut.
+Βλέπουμε στην~\autoref{figure4} ότι για $k=2$, τα αποτελέσματα είναι τα 
+ίδια με την῀\autoref{figure3}. Η τιμή n\_cut για την πάνω περίπτωση είναι περίπου 0.51 και για 
+την κάτω περίπου 0.78. 
 
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{Figure_4.png}
-    \caption{Αποτελέσματα spectral clustering σε έτοιμο affinity matrix}\label{figure4}
+    \caption{Αποτελέσματα recursive n-cuts μεθόδου για μία επανάληψη}\label{figure4}
 \end{figure}
-\subsection{demo3c}
 
+\subsection{demo3c}
+Στο αρχείο demo3c.py γίνεται η επίδειξη της ολοκληρωμένης μεθόδου recursive 
+normalized cuts. Όμοια με το demo3a.py φορτώνονται οι δοσμένες εικόνες d2a, d2b και υπολογίζονται τα affinity 
+matrices τους με την img\_to\_graph(). Έπειτα καλείται η  n\_cuts\_recursive() 
+με ορίσματα τον affinity πίνακα του γράφου της εικόνας και thresholds $T1=5$, $T2=0.2$. Βλέπουμε
+από την~\autoref{figure5} ότι η αναδρομική μέθοδος δεν έτρεξε ούτε μια φορά και όλα τα pixels
+και στις δύο εικόνες είναι σε ένα cluster, το αρχικό. Αυτό είναι το αναμενόμενο
+αποτέλεσμα, αφού υπολογίσαμε στο demo3b.py τις n\_cut τιμές των αρχικών εικόνων 
+0.51 και 0.78, πολύ μεγαλύτερες από το threshold $T2=0.2$.
+
+Επειδή δεν έχουμε δει ακόμα την n\_cuts\_recursive() με αναδρομία, ξαναέτρεξα το
+demo3c.py για $T2=0.8$. Βλέπουμε τα αποτελέσματα στην~\autoref{figure6}. Στην 
+πάνω περίπτωση τα αποτελέσματα είναι ακριβώς ίδια για την περίπτωση της 
+μη αναδρομικής n-cuts μεθόδου για $k=3$. Για την κάτω περίπτωση είναι 
+γενικά παρόμοιο με τη μη-αναδρομική μέθοδο για $k=3$, 
+ένα cluster για άσπρο χρώμα και χρώμα δέρματος, ένα cluster 
+για καφέ και κόκκινο και ένα cluster για το μπλε. Μπορούμε να
+δούμε μικρές διαφορές στα κόκκινα borders, στο ένα γάντι του Mario
+και γύρω απο τα χρυσά κουμπιά στη σαλοπέτα του. Προφανώς η σωστή 
+λειτουργία της n\_cuts\_recursive() εξαρτάται από την επιλογή 
+του threshold $T2$. 
 
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{Figure_5.png}
-    \caption{Αποτελέσματα spectral clustering σε έτοιμο affinity matrix}\label{figure5}
+    \caption{Αποτελέσματα αναδρομικής n-cuts μεθόδου για $T2=0.2$}\label{figure5}
 \end{figure}
 
 
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{Figure_6.png}
-    \caption{Αποτελέσματα spectral clustering σε έτοιμο affinity matrix}\label{figure6}
+    \caption{Αποτελέσματα αναδρομικής n-cuts μεθόδου για $T2=0.8$}\label{figure6}
 \end{figure}
+
 \end{document}

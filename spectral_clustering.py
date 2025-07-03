@@ -41,3 +41,4 @@ def spectral_clustering(affinity_mat, k):
     cluster_idx = kmeans.labels_
     
     return cluster_idx.astype(np.float64)
+

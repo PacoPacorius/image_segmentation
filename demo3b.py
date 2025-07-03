@@ -67,18 +67,18 @@ def demo3b():
         
         # Perform one step of recursive normalized cuts (k=2)
         print("Performing binary normalized cuts (k=2)...")
-        cluster_labels = n_cuts(affinity_mat, k=2)
+        cluster_idx = n_cuts(affinity_mat, k=2)
         
         # Calculate n_cut value
-        n_cut_value = calculate_n_cut_value(affinity_mat, cluster_labels)
+        n_cut_value = calculate_n_cut_value(affinity_mat, cluster_idx)
         print(f"N-cut value: {n_cut_value:.4f}")
         
-        print(f"Number of unique clusters found: {len(np.unique(cluster_labels))}")
-        print(f"Cluster distribution: {np.bincount(cluster_labels.astype(int))}")
+        print(f"Number of unique clusters found: {len(np.unique(cluster_idx))}")
+        print(f"Cluster distribution: {np.bincount(cluster_idx.astype(int))}")
         
         # Reshape cluster labels back to image dimensions
         M, N = img.shape[:2]
-        cluster_image = cluster_labels.reshape(M, N)
+        cluster_image = cluster_idx.reshape(M, N)
         
         # Display clustering result
         im = axes[img_idx, 1].imshow(cluster_image, cmap='tab10', vmin=0, vmax=1)
@@ -95,3 +95,4 @@ def demo3b():
 
 if __name__ == "__main__":
     demo3b()
+

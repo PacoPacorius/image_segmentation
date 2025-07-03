@@ -29,3 +29,4 @@ def img_to_graph(img_array):
     np.fill_diagonal(affinity_mat, 1.0)
     
     return affinity_mat.astype(np.float64)
+
